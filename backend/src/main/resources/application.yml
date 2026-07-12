@@ -1,0 +1,8 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: gridweaver-backend
+  threads:
+    virtual:
+      enabled: true
