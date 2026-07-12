@@ -22,16 +22,26 @@ function Layout() {
       sx={{
         display: "flex",
         minHeight: "100vh",
-        backgroundColor: "#F5F7FA",
+        backgroundColor: "#F8FAFC",
+
+        // Professional Grid Background
+        backgroundImage: `
+          linear-gradient(rgba(15,23,42,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15,23,42,0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: "40px 40px",
       }}
     >
+      {/* Navbar */}
       <Navbar onMenuClick={handleDrawerToggle} />
 
+      {/* Sidebar */}
       <Sidebar
         mobileOpen={mobileOpen}
         onClose={handleDrawerClose}
       />
 
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
@@ -40,7 +50,9 @@ function Layout() {
             md: `calc(100% - ${DRAWER_WIDTH}px)`,
           },
           minWidth: 0,
-          backgroundColor: "#F5F7FA",
+          position: "relative",
+          zIndex: 1,
+          backgroundColor: "transparent",
         }}
       >
         <Toolbar
@@ -54,6 +66,7 @@ function Layout() {
             p: {
               xs: 2,
               sm: 3,
+              md: 4,
             },
             maxWidth: "1600px",
             mx: "auto",
