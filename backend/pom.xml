@@ -7,7 +7,7 @@
         <version>3.2.5</version>
         <relativePath/>
     </parent>
-    <groupId>com.infotact</groupId>
+    <groupId>com.gridweaver</groupId>
     <artifactId>gridweaver-backend</artifactId>
     <version>0.1.0</version>
     <properties><java.version>21</java.version></properties>
