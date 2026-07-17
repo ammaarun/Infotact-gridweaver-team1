@@ -1,4 +1,4 @@
-package com.infotact.gridweaver.config;
+package com.gridweaver.config;
 
 import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
 import org.springframework.context.annotation.Bean;

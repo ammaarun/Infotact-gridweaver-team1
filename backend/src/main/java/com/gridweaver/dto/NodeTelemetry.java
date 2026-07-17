@@ -1,4 +1,4 @@
-package com.infotact.gridweaver.model;
+package com.gridweaver.dto;
 
 /**
  * Immutable telemetry ping from a single IoT node (solar panel or home battery).

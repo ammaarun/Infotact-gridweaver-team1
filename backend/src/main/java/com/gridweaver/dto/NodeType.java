@@ -1,4 +1,4 @@
-package com.infotact.gridweaver.model;
+package com.gridweaver.dto;
 
 public enum NodeType {
     SOLAR_PANEL,

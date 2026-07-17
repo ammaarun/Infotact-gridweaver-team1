@@ -1,11 +1,12 @@
-package com.infotact.gridweaver.config;
+package com.gridweaver.config;
 
-import com.infotact.gridweaver.websocket.TelemetryWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import com.gridweaver.websocket.TelemetryWebSocketHandler;
 
 @Configuration
 @EnableWebSocket

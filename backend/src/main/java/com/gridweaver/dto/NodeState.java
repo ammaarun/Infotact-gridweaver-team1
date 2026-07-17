@@ -1,4 +1,4 @@
-package com.infotact.gridweaver.model;
+package com.gridweaver.dto;
 
 /**
  * Full state machine (Spring State Machine) lands in Week 2.
