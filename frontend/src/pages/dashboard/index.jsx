@@ -1,33 +1,50 @@
-import { Box, Grid } from "@mui/material";
+import React from "react";
+import { Box, Grid, Stack } from "@mui/material";
 
-import DashboardHeader from "../../features/dashboard/components/DashboardHeader";
-import StatCards from "../../features/dashboard/components/StatCards";
+import HeroSection from "../../features/dashboard/components/HeroSection";
+import KPIGrid from "../../features/dashboard/components/KPIGrid";
 import PowerChart from "../../features/dashboard/components/PowerChart";
 import BatteryChart from "../../features/dashboard/components/BatteryChart";
 import RecentEventsTable from "../../features/dashboard/components/RecentEventsTable";
 
-const Dashboard = () => {
+import useDashboard from "../../features/dashboard/hooks/useDashboard";
+
+const DashboardPage = () => {
+  const { systemHealth, kpis } = useDashboard();
+
   return (
-    <Box>
-      <DashboardHeader />
+    <Box
+      sx={(theme) => ({
+        backgroundColor: theme.palette.background.default,
+        minHeight: "100vh",
+        p: 4,
+      })}
+    >
+      <Stack spacing={4}>
+        {/* Hero */}
+        <HeroSection systemHealth={systemHealth} />
 
-      <StatCards />
+        {/* KPI */}
+        <KPIGrid kpis={kpis} />
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 8 }}>
+        {/* Power Chart */}
+        <Box>
           <PowerChart />
-        </Grid>
+        </Box>
 
-        <Grid size={{ xs: 12, lg: 4 }}>
-          <BatteryChart />
-        </Grid>
+        {/* Bottom Section */}
+        <Grid container spacing={4}>
+          <Grid item xs={12} lg={4}>
+            <BatteryChart />
+          </Grid>
 
-        <Grid size={12}>
-          <RecentEventsTable />
+          <Grid item xs={12} lg={8}>
+            <RecentEventsTable />
+          </Grid>
         </Grid>
-      </Grid>
+      </Stack>
     </Box>
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

@@ -12,6 +12,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
 
 import { DRAWER_WIDTH } from "./Sidebar";
+import ThemeToggle from "../common/ThemeToggle";
 
 export const NAVBAR_HEIGHT = 64;
 
@@ -28,9 +29,14 @@ function Navbar({ onMenuClick }) {
         ml: {
           md: `${DRAWER_WIDTH}px`,
         },
-        backgroundColor: "#FFFFFF",
-        color: "#111827",
-        borderBottom: "1px solid #E5E7EB",
+
+        // Theme Colors
+        bgcolor: "background.paper",
+        color: "text.primary",
+        borderBottom: 1,
+        borderColor: "divider",
+
+        transition: "all .3s ease",
       }}
     >
       <Toolbar
@@ -51,6 +57,7 @@ function Navbar({ onMenuClick }) {
               md: "none",
             },
             mr: 2,
+            color: "text.primary",
           }}
         >
           <MenuRoundedIcon />
@@ -59,19 +66,23 @@ function Navbar({ onMenuClick }) {
         <Box sx={{ flexGrow: 1 }} />
 
         <Tooltip title="Notifications">
-          <IconButton>
+          <IconButton sx={{ color: "text.primary" }}>
             <Badge color="error" variant="dot">
               <NotificationsNoneRoundedIcon />
             </Badge>
           </IconButton>
         </Tooltip>
 
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         <Avatar
           sx={{
             ml: 2,
             width: 36,
             height: 36,
-            bgcolor: "#2563EB",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
             fontWeight: 600,
           }}
         >

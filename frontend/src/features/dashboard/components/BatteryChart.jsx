@@ -5,6 +5,7 @@ import {
   Box,
   Stack,
   Divider,
+  Chip,
 } from "@mui/material";
 
 import BatteryChargingFullRoundedIcon from "@mui/icons-material/BatteryChargingFullRounded";
@@ -12,6 +13,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import ThermostatRoundedIcon from "@mui/icons-material/ThermostatRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 
 import {
   RadialBarChart,
@@ -29,45 +31,92 @@ const BatteryChart = () => {
     <Card
       elevation={0}
       sx={{
-        borderRadius: 4,
-        border: "1px solid #E5E7EB",
+        position: "relative",
+        overflow: "hidden",
         height: "100%",
+        borderRadius: 5,
+        background: (theme) =>
+        theme.palette.mode === "dark"
+          ? "linear-gradient(145deg,#1E293B 0%,#0F172A 55%,#111827 100%)"
+            : theme.palette.background.paper,
+        color: (theme) => theme.palette.text.primary,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
+        boxShadow: "0 20px 45px rgba(0,0,0,.35)",
+
+        "&:before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background:
+            "linear-gradient(90deg,#8B5CF6,#3B82F6)",
+        },
       }}
     >
       <CardContent
         sx={{
-          p: 3,
+          p: 3.5,
           "&:last-child": {
-            pb: 3,
+            pb: 3.5,
           },
         }}
       >
-        {/* Header */}
-        <Box
-          display="flex"
+        <Stack
+          direction="row"
+          justifyContent="space-between"
           alignItems="center"
-          gap={1}
           mb={3}
         >
-          <BatteryChargingFullRoundedIcon
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+          >
+            <BatteryChargingFullRoundedIcon
+              sx={{
+                color: "#8B5CF6",
+                fontSize: 30,
+              }}
+            />
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                }}
+              >
+                Battery Health
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: (theme) => theme.palette.text.secondary,
+                  fontSize: 14,
+                }}
+              >
+                Energy Storage Overview
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Chip
+            icon={<TrendingUpRoundedIcon />}
+            label="Healthy"
             sx={{
-              color: "#8B5CF6",
+              bgcolor: "#16A34A",
+              color: "#fff",
+              fontWeight: 700,
             }}
           />
+        </Stack>
 
-          <Typography
-            variant="h6"
-            fontWeight={700}
-          >
-            Battery Status
-          </Typography>
-        </Box>
-
-        {/* Chart */}
         <Box
           sx={{
             position: "relative",
-            height: 220,
+            height: 260,
           }}
         >
           <ResponsiveContainer
@@ -75,69 +124,90 @@ const BatteryChart = () => {
             height="100%"
           >
             <RadialBarChart
-              innerRadius="75%"
+              innerRadius="74%"
               outerRadius="100%"
-              barSize={16}
               data={batteryChartData}
               startAngle={90}
               endAngle={-270}
+              barSize={18}
             >
               <RadialBar
-                background
+                background={{
+                  fill: (theme) =>
+                    theme.palette.mode === "dark"
+                   ? "rgba(255,255,255,.08)"
+                          : "#E5E7EB",
+                }}
                 clockWise
                 dataKey="value"
-                cornerRadius={20}
+                cornerRadius={25}
+                fill="#8B5CF6"
               />
             </RadialBarChart>
           </ResponsiveContainer>
 
-          {/* Center Text */}
           <Box
             sx={{
               position: "absolute",
               top: "50%",
               left: "50%",
-              transform: "translate(-50%, -50%)",
+              transform: "translate(-50%,-50%)",
               textAlign: "center",
             }}
           >
             <Typography
-              variant="h4"
-              fontWeight={700}
+              sx={{
+                fontSize: 40,
+                fontWeight: 800,
+              }}
             >
               {batteryInfo.percentage}%
             </Typography>
 
             <Typography
-              variant="body2"
-              color="text.secondary"
+              sx={{
+                color: (theme) => theme.palette.text.secondary,
+              }}
             >
-              Charge
+              Battery Charge
             </Typography>
           </Box>
         </Box>
 
-        <Divider sx={{ my: 2 }} />
+        <Divider
+          sx={{
+            borderColor: (theme) => theme.palette.divider,
+            my: 3,
+          }}
+        />
 
-        <Stack spacing={2}>
+        <Stack spacing={2.5}>
           <Box
             display="flex"
             justifyContent="space-between"
+            alignItems="center"
           >
-            <Box display="flex" gap={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
               <CheckCircleRoundedIcon
-                color="success"
-                fontSize="small"
+                sx={{
+                  color: "#22C55E",
+                }}
               />
 
-              <Typography variant="body2">
+              <Typography color={(theme) => theme.palette.text.secondary}>
                 Status
               </Typography>
-            </Box>
+            </Stack>
 
             <Typography
-              fontWeight={600}
-              color="success.main"
+              sx={{
+                color: "#22C55E",
+                fontWeight: 700,
+              }}
             >
               {batteryInfo.status}
             </Typography>
@@ -146,19 +216,29 @@ const BatteryChart = () => {
           <Box
             display="flex"
             justifyContent="space-between"
+            alignItems="center"
           >
-            <Box display="flex" gap={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
               <BoltRoundedIcon
-                color="warning"
-                fontSize="small"
+                sx={{
+                  color: "#F59E0B",
+                }}
               />
 
-              <Typography variant="body2">
+              <Typography color={(theme) => theme.palette.text.secondary}>
                 Voltage
               </Typography>
-            </Box>
+            </Stack>
 
-            <Typography fontWeight={600}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {batteryInfo.voltage}
             </Typography>
           </Box>
@@ -166,19 +246,29 @@ const BatteryChart = () => {
           <Box
             display="flex"
             justifyContent="space-between"
+            alignItems="center"
           >
-            <Box display="flex" gap={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
               <ThermostatRoundedIcon
-                color="error"
-                fontSize="small"
+                sx={{
+                  color: "#EF4444",
+                }}
               />
 
-              <Typography variant="body2">
+              <Typography color={(theme) => theme.palette.text.secondary}>
                 Temperature
               </Typography>
-            </Box>
+            </Stack>
 
-            <Typography fontWeight={600}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {batteryInfo.temperature}
             </Typography>
           </Box>
@@ -186,23 +276,67 @@ const BatteryChart = () => {
           <Box
             display="flex"
             justifyContent="space-between"
+            alignItems="center"
           >
-            <Box display="flex" gap={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
               <AccessTimeRoundedIcon
-                color="primary"
-                fontSize="small"
+                sx={{
+                  color: "#3B82F6",
+                }}
               />
 
-              <Typography variant="body2">
+              <Typography color={(theme) => theme.palette.text.secondary}>
                 Last Sync
               </Typography>
-            </Box>
+            </Stack>
 
-            <Typography fontWeight={600}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {batteryInfo.lastSync}
             </Typography>
           </Box>
         </Stack>
+
+        <Box
+          sx={{
+            mt: 4,
+            p: 2,
+            borderRadius: 3,
+            bgcolor: (theme) => theme.palette.mode === "dark"
+    ? "rgba(139,92,246,.08)"
+    : "rgba(139,92,246,.05)",
+            border: (theme) => theme.palette.mode === "dark"
+    ? "1px solid rgba(139,92,246,.18)"
+    : "1px solid rgba(139,92,246,.25)",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              color: (theme) => theme.palette.text.secondary,
+            }}
+          >
+            Estimated Backup
+          </Typography>
+
+          <Typography
+            sx={{
+              mt: .5,
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#8B5CF6",
+            }}
+          >
+            08h 42m Remaining
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );

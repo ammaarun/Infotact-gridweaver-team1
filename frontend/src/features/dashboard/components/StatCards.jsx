@@ -7,9 +7,9 @@ const StatCards = () => {
   return (
     <Grid
       container
-      spacing={2.5}
+      spacing={2}
       sx={{
-        mb: 4,
+        mb: 3,
       }}
     >
       {dashboardStats.map((item) => (

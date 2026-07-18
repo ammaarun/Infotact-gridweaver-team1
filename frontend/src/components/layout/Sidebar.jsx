@@ -56,9 +56,10 @@ function SidebarContent() {
       <Toolbar>
         <Box
           sx={{
-            fontWeight: 700,
-            fontSize: "1.2rem",
-            color: "#111827",
+            fontWeight: 800,
+            fontSize: "1.35rem",
+            color: "primary.main",
+            letterSpacing: "-0.5px",
           }}
         >
           GridWeaver
@@ -67,30 +68,61 @@ function SidebarContent() {
 
       <Divider />
 
-      <List sx={{ p: 1 }}>
+      <List sx={{ p: 1.5 }}>
         {NAV_ITEMS.map((item) => {
           const active = location.pathname === item.path;
 
           return (
-            <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+            <ListItem
+              key={item.path}
+              disablePadding
+              sx={{ mb: 0.8 }}
+            >
               <ListItemButton
                 component={Link}
                 to={item.path}
                 selected={active}
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: 3,
+                  py: 1.2,
+                  px: 2,
+                  transition: "all .25s ease",
 
-                  "&.Mui-selected": {
-                    backgroundColor: "rgba(37,99,235,0.12)",
-                    color: "#2563EB",
+                  "& .MuiListItemIcon-root": {
+                    color: active
+                      ? "primary.main"
+                      : "text.secondary",
+                    minWidth: 42,
+                    transition: ".25s",
                   },
 
-                  "&.Mui-selected .MuiListItemIcon-root": {
-                    color: "#2563EB",
+                  "& .MuiListItemText-primary": {
+                    color: active
+                      ? "primary.main"
+                      : "text.primary",
+                  },
+
+                  "&.Mui-selected": {
+                    bgcolor: "primary.main",
+                    color: "primary.contrastText",
+
+                    "& .MuiListItemIcon-root": {
+                      color: "primary.contrastText",
+                    },
+
+                    "& .MuiListItemText-primary": {
+                      color: "primary.contrastText",
+                      fontWeight: 700,
+                    },
+                  },
+
+                  "&.Mui-selected:hover": {
+                    bgcolor: "primary.dark",
                   },
 
                   "&:hover": {
-                    backgroundColor: "rgba(37,99,235,0.06)",
+                    bgcolor: "action.hover",
+                    transform: "translateX(4px)",
                   },
                 }}
               >
@@ -99,7 +131,7 @@ function SidebarContent() {
                 <ListItemText
                   primary={item.text}
                   primaryTypographyProps={{
-                    fontWeight: active ? 600 : 500,
+                    fontWeight: active ? 700 : 500,
                   }}
                 />
               </ListItemButton>
@@ -136,6 +168,10 @@ function Sidebar({ mobileOpen, onClose }) {
           "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
+            bgcolor: "background.paper",
+            color: "text.primary",
+            borderRight: 1,
+            borderColor: "divider",
           },
         }}
       >
@@ -154,7 +190,10 @@ function Sidebar({ mobileOpen, onClose }) {
           "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
-            borderRight: "1px solid #E5E7EB",
+            bgcolor: "background.paper",
+            color: "text.primary",
+            borderRight: 1,
+            borderColor: "divider",
           },
         }}
       >
