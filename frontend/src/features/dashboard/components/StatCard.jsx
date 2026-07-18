@@ -23,18 +23,21 @@ const StatCard = ({
   return (
     <Card
       elevation={0}
-      sx={{
+      sx={(theme) => ({
         height: "100%",
         borderRadius: 4,
-        border: "1px solid #E5E7EB",
-        backgroundColor: "#FFFFFF",
+        border: `1px solid ${theme.palette.divider}`,
+        backgroundColor: theme.palette.background.paper,
         transition: "all .25s ease",
 
         "&:hover": {
           transform: "translateY(-6px)",
-          boxShadow: "0 16px 32px rgba(15,23,42,0.08)",
+          boxShadow:
+            theme.palette.mode === "dark"
+              ? "0 16px 32px rgba(0,0,0,.35)"
+              : "0 16px 32px rgba(15,23,42,.08)",
         },
-      }}
+      })}
     >
       <CardContent
         sx={{
@@ -44,7 +47,6 @@ const StatCard = ({
           },
         }}
       >
-        {/* Top Row */}
         <Box
           display="flex"
           justifyContent="space-between"
@@ -53,7 +55,7 @@ const StatCard = ({
           <Typography
             variant="body2"
             sx={{
-              color: "#6B7280",
+              color: "text.secondary",
               fontWeight: 600,
               letterSpacing: ".3px",
             }}
@@ -75,7 +77,7 @@ const StatCard = ({
             {Icon && (
               <Icon
                 sx={{
-                  color: color,
+                  color,
                   fontSize: 28,
                 }}
               />
@@ -83,19 +85,17 @@ const StatCard = ({
           </Box>
         </Box>
 
-        {/* Value */}
         <Typography
           variant="h3"
           sx={{
             mt: 3,
             fontWeight: 700,
-            color: "#111827",
+            color: "text.primary",
           }}
         >
           {value}
         </Typography>
 
-        {/* Bottom Row */}
         <Box
           mt={3}
           display="flex"
@@ -105,7 +105,7 @@ const StatCard = ({
           <Typography
             variant="body2"
             sx={{
-              color: "#6B7280",
+              color: "text.secondary",
             }}
           >
             {subtitle}
@@ -126,11 +126,9 @@ const StatCard = ({
               backgroundColor: isIncrease
                 ? "#DCFCE7"
                 : "#FEE2E2",
-
               color: isIncrease
                 ? "#15803D"
                 : "#DC2626",
-
               "& .MuiChip-icon": {
                 color: "inherit",
               },
