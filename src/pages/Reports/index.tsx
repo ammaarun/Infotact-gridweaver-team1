@@ -4,12 +4,13 @@ import {
   FileText, Download, CheckCircle, Calendar, Shield, AlertTriangle
 } from 'lucide-react';
 import { PageHeader, GlassCard } from '../../components/ui';
-import { getGridZones } from '../../services/mockData';
+import { fetchGridZones } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '../../utils';
 import type { ReportConfig } from '../../types';
 
 export default function Reports() {
-  const zones = useMemo(() => getGridZones(), []);
+  const { data: zones = [] } = useQuery({ queryKey: ['zones'], queryFn: fetchGridZones });
   const [isGenerating, setIsGenerating] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 

@@ -6,7 +6,8 @@ import {
   Eye, History, MapPin, Download, SlidersHorizontal, ArrowUpDown,
 } from 'lucide-react';
 import { PageHeader, GlassCard, StatusBadge } from '../../components/ui';
-import { getDevices } from '../../services/mockData';
+import { fetchAllDevices } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { getDeviceTypeLabel, formatPower, cn } from '../../utils';
 import type { Device, DeviceType, DeviceStatus } from '../../types';
 
@@ -14,7 +15,7 @@ const PAGE_SIZE = 20;
 
 export default function Devices() {
   const navigate = useNavigate();
-  const allDevices = useMemo(() => getDevices(), []);
+  const { data: allDevices = [] } = useQuery({ queryKey: ['allDevices'], queryFn: fetchAllDevices });
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<DeviceType | 'all'>('all');

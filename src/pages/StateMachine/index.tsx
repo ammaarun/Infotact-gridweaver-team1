@@ -4,9 +4,10 @@ import {
   Cpu, Play, Pause, RefreshCw, Activity, ArrowRight, FileText, CheckCircle2, AlertTriangle, AlertCircle
 } from 'lucide-react';
 import { PageHeader, GlassCard, StatusBadge } from '../../components/ui';
-import { getEventLogs, getDevices } from '../../services/mockData';
+import { fetchEventLogs, fetchAllDevices } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '../../utils';
-import type { DeviceState } from '../../types';
+import type { DeviceState, EventLog } from '../../types';
 
 interface StateNode {
   id: DeviceState;
@@ -28,23 +29,32 @@ const STATES: StateNode[] = [
 export default function StateMachine() {
   const [activeNode, setActiveNode] = useState<DeviceState>('idle');
   const [isRunning, setIsRunning] = useState(true);
-  const [logs, setLogs] = useState(() => getEventLogs().slice(0, 15));
-  const devices = useMemo(() => getDevices(), []);
+  
+  const { data: initialLogs = [] } = useQuery({ queryKey: ['events'], queryFn: fetchEventLogs });
+  const { data: devices = [] } = useQuery({ queryKey: ['allDevices'], queryFn: fetchAllDevices });
+  
+  const [logs, setLogs] = useState<EventLog[]>([]);
+
+  useEffect(() => {
+    if (initialLogs.length > 0 && logs.length === 0) {
+      setLogs(initialLogs.slice(0, 15));
+    }
+  }, [initialLogs, logs.length]);
 
   // Simulate incoming live transitions
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning || devices.length === 0) return;
 
     const interval = setInterval(() => {
       // Pick random device to transition
-      const device = devices[Math.floor(Math.random() * devices.length)];
+      const device = devices[Math.floor(Math.random() * devices.length)] as any;
       const oldState = device.state;
       const stateOptions: DeviceState[] = ['idle', 'charging', 'discharging', 'generating', 'fault', 'offline'];
       const newState = stateOptions[Math.floor(Math.random() * stateOptions.length)];
 
       if (oldState === newState) return;
 
-      const newLog = {
+      const newLog: EventLog = {
         id: `LOG-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
         deviceId: device.id,
         deviceName: device.name,

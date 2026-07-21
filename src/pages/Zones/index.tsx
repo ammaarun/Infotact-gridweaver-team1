@@ -4,11 +4,12 @@ import {
   Hexagon, Zap, Battery, AlertTriangle, Activity, MapPin, ChevronRight
 } from 'lucide-react';
 import { PageHeader, GlassCard } from '../../components/ui';
-import { getGridZones } from '../../services/mockData';
+import { fetchGridZones } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '../../utils';
 
 export default function Zones() {
-  const zones = useMemo(() => getGridZones(), []);
+  const { data: zones = [] } = useQuery({ queryKey: ['zones'], queryFn: fetchGridZones });
 
   return (
     <div>

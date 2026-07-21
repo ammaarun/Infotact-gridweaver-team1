@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Cpu, Wifi, WifiOff, AlertTriangle, Sun, Battery, Zap, Activity,
-  TrendingUp, TrendingDown, Clock,
+  TrendingUp, Clock, Loader2
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -10,9 +10,9 @@ import {
 } from 'recharts';
 import { StatCard, GlassCard, StatusBadge, PageHeader } from '../../components/ui';
 import {
-  getGridStats, getAlerts, getEventLogs,
-  getPowerConsumptionData, getVoltageData, getBatteryData, getGridLoadData, getDevices,
-} from '../../services/mockData';
+  fetchGridStats, fetchAlerts, fetchEventLogs, fetchPowerData,
+  fetchVoltageData, fetchBatteryData, fetchGridLoadData, fetchFaultDevices
+} from '../../services/telemetryApi';
 import { formatPower, formatEnergy, getDeviceIcon, timeAgo } from '../../utils';
 
 const chartTooltipStyle = {
@@ -27,14 +27,25 @@ const stagger = {
 };
 
 export default function Dashboard() {
-  const stats = useMemo(() => getGridStats(), []);
-  const alerts = useMemo(() => getAlerts().slice(0, 6), []);
-  const events = useMemo(() => getEventLogs().slice(0, 8), []);
-  const powerData = useMemo(() => getPowerConsumptionData(), []);
-  const voltageData = useMemo(() => getVoltageData(), []);
-  const batteryData = useMemo(() => getBatteryData(), []);
-  const loadData = useMemo(() => getGridLoadData(), []);
-  const faultDevices = useMemo(() => getDevices().filter(d => d.status === 'fault').slice(0, 6), []);
+  const { data: stats, isLoading: statsLoading } = useQuery({ queryKey: ['gridStats'], queryFn: fetchGridStats, refetchInterval: 5000 });
+  const { data: alerts = [], isLoading: alertsLoading } = useQuery({ queryKey: ['alerts'], queryFn: fetchAlerts, refetchInterval: 5000 });
+  const { data: events = [], isLoading: eventsLoading } = useQuery({ queryKey: ['events'], queryFn: fetchEventLogs, refetchInterval: 5000 });
+  const { data: powerData = [] } = useQuery({ queryKey: ['powerData'], queryFn: fetchPowerData, refetchInterval: 5000 });
+  const { data: voltageData = [] } = useQuery({ queryKey: ['voltageData'], queryFn: fetchVoltageData, refetchInterval: 5000 });
+  const { data: batteryData = [] } = useQuery({ queryKey: ['batteryData'], queryFn: fetchBatteryData, refetchInterval: 5000 });
+  const { data: loadData = [] } = useQuery({ queryKey: ['loadData'], queryFn: fetchGridLoadData, refetchInterval: 5000 });
+  const { data: faultDevices = [] } = useQuery({ queryKey: ['faultDevices'], queryFn: fetchFaultDevices, refetchInterval: 5000 });
+
+  if (statsLoading || alertsLoading || eventsLoading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[500px]">
+        <div className="flex flex-col items-center gap-4 text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <p>Connecting to Telemetry Stream...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -57,37 +68,39 @@ export default function Dashboard() {
       />
 
       {/* Stats Grid */}
-      <motion.div
-        variants={stagger.container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-4 2xl:grid-cols-8 gap-4 mb-6"
-      >
-        <motion.div variants={stagger.item}>
-          <StatCard title="Total Devices" value={stats.totalDevices.toLocaleString()} icon={<Cpu className="w-5 h-5" />} color="#2563EB" trend={{ value: 2.4, label: 'vs last week' }} />
+      {stats && (
+        <motion.div
+          variants={stagger.container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-4 2xl:grid-cols-8 gap-4 mb-6"
+        >
+          <motion.div variants={stagger.item}>
+            <StatCard title="Total Devices" value={stats.totalDevices.toLocaleString()} icon={<Cpu className="w-5 h-5" />} color="#2563EB" trend={{ value: 2.4, label: 'vs last week' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Online" value={stats.onlineDevices.toLocaleString()} icon={<Wifi className="w-5 h-5" />} color="#10B981" trend={{ value: 1.2, label: 'vs last hour' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Offline" value={stats.offlineDevices.toLocaleString()} icon={<WifiOff className="w-5 h-5" />} color="#94A3B8" trend={{ value: -3.1, label: 'vs last hour' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Faults" value={stats.faultDevices.toLocaleString()} icon={<AlertTriangle className="w-5 h-5" />} color="#EF4444" trend={{ value: 0.8, label: 'vs last hour' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Solar Output" value={formatPower(stats.solarOutput * 1000)} icon={<Sun className="w-5 h-5" />} color="#F59E0B" trend={{ value: 12.5, label: 'today' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Battery Cap." value={formatEnergy(stats.batteryCapacity * 1000)} icon={<Battery className="w-5 h-5" />} color="#8B5CF6" trend={{ value: 5.3, label: 'available' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Consumption" value={formatPower(stats.powerConsumption * 1000)} icon={<Zap className="w-5 h-5" />} color="#38BDF8" trend={{ value: -1.7, label: 'vs peak' }} />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <StatCard title="Grid Stability" value={`${stats.gridStability.toFixed(1)}%`} icon={<Activity className="w-5 h-5" />} color="#10B981" trend={{ value: 0.3, label: 'stable' }} />
+          </motion.div>
         </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Online" value={stats.onlineDevices.toLocaleString()} icon={<Wifi className="w-5 h-5" />} color="#10B981" trend={{ value: 1.2, label: 'vs last hour' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Offline" value={stats.offlineDevices.toLocaleString()} icon={<WifiOff className="w-5 h-5" />} color="#94A3B8" trend={{ value: -3.1, label: 'vs last hour' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Faults" value={stats.faultDevices.toLocaleString()} icon={<AlertTriangle className="w-5 h-5" />} color="#EF4444" trend={{ value: 0.8, label: 'vs last hour' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Solar Output" value={formatPower(stats.solarOutput * 1000)} icon={<Sun className="w-5 h-5" />} color="#F59E0B" trend={{ value: 12.5, label: 'today' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Battery Cap." value={formatEnergy(stats.batteryCapacity * 1000)} icon={<Battery className="w-5 h-5" />} color="#8B5CF6" trend={{ value: 5.3, label: 'available' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Consumption" value={formatPower(stats.powerConsumption * 1000)} icon={<Zap className="w-5 h-5" />} color="#38BDF8" trend={{ value: -1.7, label: 'vs peak' }} />
-        </motion.div>
-        <motion.div variants={stagger.item}>
-          <StatCard title="Grid Stability" value={`${stats.gridStability}%`} icon={<Activity className="w-5 h-5" />} color="#10B981" trend={{ value: 0.3, label: 'stable' }} />
-        </motion.div>
-      </motion.div>
+      )}
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -182,7 +195,7 @@ export default function Dashboard() {
           action={<button className="text-xs text-blue-400 hover:text-blue-300">View All</button>}
         >
           <div className="divide-y divide-white/5">
-            {alerts.map((alert) => (
+            {alerts.slice(0, 6).map((alert: any) => (
               <div key={alert.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -211,7 +224,7 @@ export default function Dashboard() {
           action={<button className="text-xs text-blue-400 hover:text-blue-300">View All</button>}
         >
           <div className="divide-y divide-white/5">
-            {events.map((event) => (
+            {events.slice(0, 8).map((event: any) => (
               <div key={event.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="text-lg flex-shrink-0">{getDeviceIcon(event.deviceType)}</div>
@@ -235,7 +248,7 @@ export default function Dashboard() {
           action={<button className="text-xs text-red-400 hover:text-red-300">Resolve All</button>}
         >
           <div className="divide-y divide-white/5">
-            {faultDevices.map((device) => (
+            {faultDevices.slice(0, 6).map((device: any) => (
               <div key={device.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
@@ -246,12 +259,17 @@ export default function Dashboard() {
                     <p className="text-[11px] text-slate-500">{device.zone} · {device.id}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-red-400 font-medium">{device.telemetry.temperature}°C</p>
+                    <p className="text-xs text-red-400 font-medium">{device.telemetry?.temperature.toFixed(1)}°C</p>
                     <p className="text-[10px] text-slate-600">{timeAgo(device.lastUpdated)}</p>
                   </div>
                 </div>
               </div>
             ))}
+            {faultDevices.length === 0 && (
+              <div className="px-5 py-8 text-center text-slate-400 text-xs">
+                No active faults detected.
+              </div>
+            )}
           </div>
         </GlassCard>
       </div>

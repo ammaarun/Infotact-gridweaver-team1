@@ -5,12 +5,13 @@ import {
   Bell, ChevronDown, X,
 } from 'lucide-react';
 import { PageHeader, GlassCard, StatusBadge, StatCard } from '../../components/ui';
-import { getAlerts } from '../../services/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAlerts } from '../../services/telemetryApi';
 import { cn, timeAgo, getDeviceIcon } from '../../utils';
 import type { AlertSeverity, AlertStatus } from '../../types';
 
 export default function Alerts() {
-  const allAlerts = useMemo(() => getAlerts(), []);
+  const { data: allAlerts = [] } = useQuery({ queryKey: ['alerts'], queryFn: fetchAlerts, refetchInterval: 10000 });
   const [search, setSearch] = useState('');
   const [severity, setSeverity] = useState<AlertSeverity | 'all'>('all');
   const [status, setStatus] = useState<AlertStatus | 'all'>('all');

@@ -7,7 +7,8 @@ import {
   Filter, BarChart3, Eye, Maximize2,
 } from 'lucide-react';
 import { GlassCard, StatusBadge, PageHeader } from '../../components/ui';
-import { getDevices, getGridStats } from '../../services/mockData';
+import { fetchAllDevices, fetchGridStats } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { getStatusColor, getDeviceTypeLabel, formatPower, cn } from '../../utils';
 import type { Device, DeviceType } from '../../types';
 import 'leaflet/dist/leaflet.css';
@@ -54,14 +55,15 @@ export default function GridMap() {
   const [selectedType, setSelectedType] = useState<DeviceType | 'all'>('all');
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [flyCenter, setFlyCenter] = useState<[number, number] | null>(null);
-  const stats = useMemo(() => getGridStats(), []);
+  
+  const { data: stats = { onlineDevices: 0, offlineDevices: 0, faultDevices: 0, solarOutput: 0, gridStability: 0 } as any } = useQuery({ queryKey: ['gridStats'], queryFn: fetchGridStats });
+  const { data: allDevices = [] } = useQuery({ queryKey: ['allDevices'], queryFn: fetchAllDevices });
 
   // Only show first 500 devices on map for performance
   const devices = useMemo(() => {
-    const all = getDevices();
-    const filtered = selectedType === 'all' ? all : all.filter(d => d.type === selectedType);
+    const filtered = selectedType === 'all' ? allDevices : allDevices.filter((d: any) => d.type === selectedType);
     return filtered.slice(0, 500);
-  }, [selectedType]);
+  }, [selectedType, allDevices]);
 
   const centerOnDevice = useCallback((device: Device) => {
     setFlyCenter([device.location.lat, device.location.lng]);
@@ -169,26 +171,33 @@ export default function GridMap() {
             {flyCenter && <FlyToCenter center={flyCenter} />}
 
             {/* Heatmap circles */}
-            {showHeatmap && devices.map((device) => (
-              <CircleMarker
-                key={`heat-${device.id}`}
-                center={[device.location.lat, device.location.lng]}
-                radius={device.telemetry.power > 0 ? Math.min(device.telemetry.power / 50, 30) + 5 : 5}
-                pathOptions={{
-                  fillColor: getStatusColor(device.status),
-                  fillOpacity: 0.15,
-                  stroke: false,
-                }}
-              />
-            ))}
+            {showHeatmap && devices.map((device) => {
+              const lat = device?.location?.lat ?? 40.7580;
+              const lng = device?.location?.lng ?? -73.9855;
+              return (
+                <CircleMarker
+                  key={`heat-${device.id}`}
+                  center={[lat, lng]}
+                  radius={device.telemetry.power > 0 ? Math.min(device.telemetry.power / 50, 30) + 5 : 5}
+                  pathOptions={{
+                    fillColor: getStatusColor(device.status),
+                    fillOpacity: 0.15,
+                    stroke: false,
+                  }}
+                />
+              );
+            })}
 
             {/* Device markers */}
-            {devices.map((device) => (
-              <Marker
-                key={device.id}
-                position={[device.location.lat, device.location.lng]}
-                icon={createDeviceIcon(device)}
-              >
+            {devices.map((device) => {
+              const lat = device?.location?.lat ?? 40.7580;
+              const lng = device?.location?.lng ?? -73.9855;
+              return (
+                <Marker
+                  key={device.id}
+                  position={[lat, lng]}
+                  icon={createDeviceIcon(device)}
+                >
                 <Popup className="custom-popup" maxWidth={320} minWidth={280}>
                   <div className="bg-[#111827] text-white rounded-lg -m-[16px] -mt-[10px] overflow-hidden" style={{ margin: '-14px -20px' }}>
                     <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
@@ -231,7 +240,7 @@ export default function GridMap() {
                     <div className="px-4 py-2 border-t border-white/10 flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
                         <MapPin className="w-3 h-3" />
-                        {device.location.lat.toFixed(4)}, {device.location.lng.toFixed(4)}
+                        {(device?.location?.lat ?? 40.7580).toFixed(4)}, {(device?.location?.lng ?? -73.9855).toFixed(4)}
                       </div>
                       <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
                         <Clock className="w-3 h-3" />
@@ -252,7 +261,8 @@ export default function GridMap() {
                   </div>
                 </Popup>
               </Marker>
-            ))}
+            );
+          })}
           </MapContainer>
         </GlassCard>
       </div>

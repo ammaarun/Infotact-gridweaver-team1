@@ -5,14 +5,15 @@ import {
 } from 'recharts';
 import { PageHeader, GlassCard, StatCard } from '../../components/ui';
 import {
-  getWeeklyGenerationData,
-  getMonthlyGenerationData,
-  getFaultStatisticsData,
-  getZoneComparisonData,
-  getPeakHoursData,
-  getPowerConsumptionData
-} from '../../services/mockData';
-import { TrendingUp, Activity, AlertTriangle, Battery, RefreshCw } from 'lucide-react';
+  fetchWeeklyGenerationData,
+  fetchMonthlyGenerationData,
+  fetchFaultStatisticsData,
+  fetchZoneComparisonData,
+  fetchPeakHoursData,
+  fetchPowerData
+} from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
+import { TrendingUp, Activity, AlertTriangle, Battery, RefreshCw, Loader2 } from 'lucide-react';
 import { cn } from '../../utils';
 
 const chartTooltipStyle = {
@@ -26,12 +27,12 @@ const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#38BDF8'
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
 
-  const weeklyData = useMemo(() => getWeeklyGenerationData(), []);
-  const monthlyData = useMemo(() => getMonthlyGenerationData(), []);
-  const faultData = useMemo(() => getFaultStatisticsData(), []);
-  const zoneData = useMemo(() => getZoneComparisonData(), []);
-  const peakData = useMemo(() => getPeakHoursData(), []);
-  const dailyData = useMemo(() => getPowerConsumptionData(), []);
+  const { data: weeklyData = [] } = useQuery({ queryKey: ['weeklyData'], queryFn: fetchWeeklyGenerationData });
+  const { data: monthlyData = [] } = useQuery({ queryKey: ['monthlyData'], queryFn: fetchMonthlyGenerationData });
+  const { data: faultData = [] } = useQuery({ queryKey: ['faultData'], queryFn: fetchFaultStatisticsData });
+  const { data: zoneData = [] } = useQuery({ queryKey: ['zoneData'], queryFn: fetchZoneComparisonData });
+  const { data: peakData = [] } = useQuery({ queryKey: ['peakData'], queryFn: fetchPeakHoursData });
+  const { data: dailyData = [] } = useQuery({ queryKey: ['powerData'], queryFn: fetchPowerData });
 
   const currentGenConsData = useMemo(() => {
     if (timeRange === 'daily') {

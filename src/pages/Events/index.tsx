@@ -4,11 +4,12 @@ import {
   FileText, Search, Clock, ArrowRight, User, Settings, Filter
 } from 'lucide-react';
 import { PageHeader, GlassCard, StatusBadge } from '../../components/ui';
-import { getEventLogs } from '../../services/mockData';
+import { fetchEventLogs } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { getDeviceIcon, getDeviceTypeLabel } from '../../utils';
 
 export default function Events() {
-  const allEvents = useMemo(() => getEventLogs(), []);
+  const { data: allEvents = [] } = useQuery({ queryKey: ['events'], queryFn: fetchEventLogs, refetchInterval: 10000 });
   const [search, setSearch] = useState('');
   const [reasonFilter, setReasonFilter] = useState('all');
 

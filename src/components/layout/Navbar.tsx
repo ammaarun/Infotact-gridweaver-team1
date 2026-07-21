@@ -10,11 +10,14 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { useAppSelector } from '../../hooks/useRedux';
-import { getNotifications, getOperatorProfile } from '../../services/mockData';
+import { useAppSelector, useAppDispatch } from '../../hooks/useRedux';
+import { logout } from '../../store/authSlice';
+import { useQuery } from '@tanstack/react-query';
+import { fetchNotifications, fetchOperatorProfile } from '../../services/telemetryApi';
 import { cn } from '../../utils';
 
 export default function Navbar() {
+  const dispatch = useAppDispatch();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,9 +25,10 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const collapsed = useAppSelector((s) => s.app.sidebarCollapsed);
 
-  const notifications = getNotifications();
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const profile = getOperatorProfile();
+  const { data: notifications = [] } = useQuery({ queryKey: ['notifications'], queryFn: fetchNotifications, refetchInterval: 10000 });
+  const { data: profile = {} as any } = useQuery({ queryKey: ['operatorProfile'], queryFn: fetchOperatorProfile });
+
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -206,7 +210,10 @@ export default function Navbar() {
                   </button>
                 ))}
                 <div className="border-t border-white/5 mt-1">
-                  <button className="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-red-500/10 transition-colors">
+                  <button 
+                    onClick={() => dispatch(logout())}
+                    className="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
                     Sign Out
                   </button>
                 </div>

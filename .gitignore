@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Java / Spring Boot
+target/
+backend/target/
+*.class
+*.jar
+*.war
+.flattened-pom.xml
+

@@ -10,7 +10,8 @@ import {
   LineChart, Line, Legend,
 } from 'recharts';
 import { PageHeader, GlassCard, StatusBadge } from '../../components/ui';
-import { getDeviceById, getAlerts, getEventLogs } from '../../services/mockData';
+import { fetchDeviceById, fetchAlerts, fetchEventLogs } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { getDeviceTypeLabel, formatPower, generateTimeSeriesData, cn } from '../../utils';
 
 const chartTooltipStyle = {
@@ -21,7 +22,10 @@ const chartTooltipStyle = {
 export default function DeviceDetails() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const navigate = useNavigate();
-  const device = useMemo(() => getDeviceById(deviceId || ''), [deviceId]);
+  
+  const { data: device } = useQuery({ queryKey: ['device', deviceId], queryFn: () => fetchDeviceById(deviceId || '') });
+  const { data: alerts = [] } = useQuery({ queryKey: ['alerts'], queryFn: fetchAlerts });
+  const { data: events = [] } = useQuery({ queryKey: ['events'], queryFn: fetchEventLogs });
 
   const powerHistory = useMemo(() => generateTimeSeriesData(48, device?.telemetry.power || 50, 30, 24).map((p, i) => ({
     name: new Date(p.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -44,13 +48,13 @@ export default function DeviceDetails() {
   })), [device]);
 
   const deviceAlerts = useMemo(() =>
-    getAlerts().filter(a => a.deviceId === deviceId).slice(0, 5),
-    [deviceId]
+    alerts.filter((a: any) => a.deviceId === deviceId).slice(0, 5),
+    [deviceId, alerts]
   );
 
   const deviceEvents = useMemo(() =>
-    getEventLogs().filter(e => e.deviceId === deviceId).slice(0, 10),
-    [deviceId]
+    events.filter((e: any) => e.deviceId === deviceId).slice(0, 10),
+    [deviceId, events]
   );
 
   if (!device) {

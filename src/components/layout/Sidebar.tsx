@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
 import { toggleSidebar } from '../../store/appSlice';
+import { logout } from '../../store/authSlice';
 import { cn } from '../../utils';
 
 const NAV_ITEMS = [
@@ -117,6 +118,9 @@ export default function Sidebar() {
       {/* Logout */}
       <div className="px-2 py-3 border-t border-white/5">
         <button
+          onClick={() => {
+            dispatch(logout());
+          }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all w-full"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />

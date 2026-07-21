@@ -5,12 +5,13 @@ import {
   Save, CheckCircle
 } from 'lucide-react';
 import { PageHeader, GlassCard } from '../../components/ui';
-import { getOperatorProfile } from '../../services/mockData';
+import { fetchOperatorProfile } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '../../utils';
 import type { SettingsConfig } from '../../types';
 
 export default function Settings() {
-  const profile = useMemo(() => getOperatorProfile(), []);
+  const { data: profile = {} as any } = useQuery({ queryKey: ['operatorProfile'], queryFn: fetchOperatorProfile });
   const [successMsg, setSuccessMsg] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 

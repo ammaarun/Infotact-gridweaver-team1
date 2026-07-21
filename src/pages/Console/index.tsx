@@ -3,10 +3,12 @@ import {
   Zap, ShieldAlert, Radio, Wrench, ShieldCheck, Power, RefreshCw, Cpu
 } from 'lucide-react';
 import { PageHeader, GlassCard, StatCard } from '../../components/ui';
-import { getGridZones } from '../../services/mockData';
+import { fetchGridZones } from '../../services/telemetryApi';
+import { useQuery } from '@tanstack/react-query';
 
 export default function OperatorConsole() {
-  const zones = useMemo(() => getGridZones().slice(0, 8), []);
+  const { data: zonesData = [] } = useQuery({ queryKey: ['zones'], queryFn: fetchGridZones });
+  const zones = useMemo(() => zonesData.slice(0, 8), [zonesData]);
   const [overrideActive, setOverrideActive] = useState(false);
   const [loadAdjustment, setLoadAdjustment] = useState(0);
 
